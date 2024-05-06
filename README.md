@@ -40,10 +40,11 @@ This library supports the following elliptic curves:
 
 ## guide
 
--here is a example of how to use the library to make a signature and verify it
+here is a example of how to use the library to make a signature and verify it
 
 ```python
-from frost import secp256k1 as frost
+# put utility_ before elliptic curves
+from frost import utility_secp256k1 as frost
 
 min_signers = 7
 max_signers = 10
