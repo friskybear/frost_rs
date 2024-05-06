@@ -1,6 +1,6 @@
 # Frost.rs Python Bindings
 
-This library is a port of [frost.rs](https://github.com/ZcashFoundation/frost.rs) written by the Zcash Foundation for Python 3.10 or Python 3.11. It provides bindings to the Rust library for performing various cryptographic operations, including distributed key generation (DKG), nonce generation, and signing signature.
+This library is a port of [frost.rs](https://github.com/ZcashFoundation/frost.rs) written by the Zcash Foundation for Python 3.8-12. It provides bindings to the Rust library for performing various cryptographic operations, including distributed key generation (DKG), nonce generation, and signing signature blazingly fast.
 
 ## Installation
 
@@ -10,17 +10,19 @@ To install the library, run the following command:
 $ pip install frost_rs
 ```
 
-- it's recommended to run the command in virtual environment
+- it's recommended to run the command in a virtual environment
 
 ## Supported Platforms
 
-The current supported operating systems are x86-64 Linux and Windows. If you want to use this library on an unsupported platform, you need to install the Rust compiler on your device by running:
+If you could not install the library due to unsupported Operating System , you can install the Rust compiler on your device by running:
 
 ```bash
-$ sudo apt install cargo
+$ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-After installing Cargo, you can install the package using `pip`. It will download the source distribution and build it for your platform.
+After installing Rust, you can install the package using the same pip command
+
+It will download the source distribution and build it for your platform.
 
 For more information on installing Rust, visit the [official Rust website](https://www.rust-lang.org/learn/get-started).
 
@@ -35,6 +37,73 @@ This library supports the following elliptic curves:
 - ristretto255
 
 **All outputs are base64url encoded strings and not encrypted!!**
+
+## guide
+
+-here is a example of how to use the library to make a signature and verify it
+
+```python
+from frost import secp256k1 as frost
+
+min_signers = 7
+max_signers = 10
+
+# get an identifier (chance of collision is 1/2^64)
+identifiers: str = [frost.get_id() for _ in range(max_signers)]
+
+# run the three round protocol to get the key
+
+round1_secret_packages: dict[str:str] = {}
+round1_public_packages: dict[str:str] = {}
+# every one sends their round public package to each other and use it in round 2
+for id in identifiers:
+    (round1_secret_packages[id], round1_public_packages[id]) = frost.round1(
+        id, min_signers, max_signers)
+
+round2_secret_packages: dict[str:str] = {}
+round2_public_packages: dict[str:dict[str:str]] = {}
+
+
+# in round 2 every one make a dict (identifier to package) and each sends the package to each user with help of identifier
+for id in identifiers:
+    round1_received_packages = {
+        key: value for key, value in round1_public_packages.items() if key != id}
+    (round2_secret_packages[id], round2_public_packages[id]) = frost.round2(
+        round1_secret_packages[id], round1_received_packages)
+
+key_packages: dict[str:str] = {}
+pubkey_packages: dict[str:str] = {}
+
+# every one will get their key package and the group public key
+for id in identifiers:
+    round1_received_packages = {
+        key: value for key, value in round1_public_packages.items() if key != id}
+    round2_received_packages = {
+        k: v[id] for k, v in round2_public_packages.items() if id in v}
+    (key_packages[id], pubkey_packages[id]) = frost.round3(
+        round2_secret_packages[id], round1_received_packages, round2_received_packages)
+nonces: dict[str:str] = {}
+commitments: dict[str:str] = {}
+
+# nonce generation can be preprocessed
+# commitment should be sent to others
+for id in identifiers:
+    (nonces[id], commitments[id]) = frost.preprocess(key_packages[id])
+# in this example no participant leaves so it acts as normal multi sig
+signature_shares: dict[str:str] = {}
+# every one sign the message and send the result to the person who aggregated the signature
+for id in identifiers:
+    signature_shares[id] = frost.sign(
+        message, commitments, nonces[id], key_packages[id])
+# after reciveing the shares aggregator will make the signature and serialize it
+group_signature = frost.aggregate(
+    message, commitments, signature_shares, pubkey_packages[identifiers[0]])
+
+# verify(message[bytes] - pubkey[string] - signature[string])-> bool
+# any one can now verify the signature if they have the access to the parameters
+verification_result = frost.verify(
+    message, pubkey_packages[identifiers[0]], group_signature)
+```
 
 ## Benchmarks
 
