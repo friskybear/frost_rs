@@ -18,14 +18,14 @@ jobs:
   
 
   sdist:
-    runs-on: ubuntu-latest
+    runs-on: windows
     steps:
       - uses: actions/checkout@v4
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
           command: sdist
-          args: --out ./dist
+          args: --out dist
       - name: Upload sdist
         uses: actions/upload-artifact@v4
         with:
