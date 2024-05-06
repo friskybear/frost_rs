@@ -1,0 +1,40 @@
+[package]
+name = "frost-rs"
+version = "0.1.2-r1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "_frost"
+crate-type = ["cdylib"]
+
+
+[dependencies]
+pyo3 = { version = "0.20.3", features = ["default", "num-bigint"] }
+pyo3-asyncio = { version = "0.20", features = ["attributes", "tokio-runtime"] }
+frost-secp256k1 = { path = "./frost-zc/frost-secp256k1" }
+frost-ed448 = { path = "./frost-zc/frost-ed448" }
+frost-ed25519 = { path = "./frost-zc/frost-ed25519" }
+frost-p256 = { path = "./frost-zc/frost-p256" }
+frost-ristretto255 = { path = "./frost-zc/frost-ristretto255" }
+tokio = { version = "1.37.0", features = ["full"] }
+rand = "0.8.5"
+num-bigint = "0.4.4"
+num-traits = "0.2.18"
+num-iter = "0.1.44"
+hex = "0.4.3"
+base64 = "0.22.0"
+serdect = "0.2.0"
+serde = "1.0.197"
+serde_json = "1.0.115"
+# libp2p = { path = "./rust-libp2p-master/libp2p", features = [
+#     "tokio",
+#     "quic",
+#     "tcp",
+# ] }
+# libp2p-stream = { path = "./rust-libp2p-master/protocols/stream" }
+tracing = "0.1.40"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1.0.82"
+futures = "0.3.30"
+lazy_static = "1.4.0"
