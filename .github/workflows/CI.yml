@@ -19,7 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: ls
+      - name: List files
+        run: ls
       - name: Build sdist
         uses: PyO3/maturin-action@v1
         with:
