@@ -15,9 +15,8 @@ permissions:
   contents: read
 
 jobs:
-  
   sdist:
-    runs-on: macos
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: List files
