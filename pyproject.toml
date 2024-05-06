@@ -10,10 +10,10 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-readme = "README.md"
+readme = "-README.md"
 dynamic = ["version"]
 [tool.maturin]
 features = ["pyo3/extension-module"]
-module-name = "frost_rs._frost"
+module-name = "frost"
 python-source = "python"
 strip = true

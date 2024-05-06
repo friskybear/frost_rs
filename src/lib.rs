@@ -2711,7 +2711,7 @@ fn utility_ristretto255(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 #[pymodule]
-fn _frost(_py: Python, m: &PyModule) -> PyResult<()> {
+fn frost(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(network))?;
     m.add_wrapped(wrap_pymodule!(utility_secp256k1))?;
     m.add_wrapped(wrap_pymodule!(utility_ed448))?;
