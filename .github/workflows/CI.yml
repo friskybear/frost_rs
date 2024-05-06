@@ -134,7 +134,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    needs: [sdist]
+    needs: [linux,windows,macos,sdist]
     steps:
       - uses: actions/download-artifact@v4
       - name: Publish to PyPI
