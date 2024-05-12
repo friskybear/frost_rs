@@ -45,7 +45,7 @@ here is a example of how to use the library to make a signature and verify it
 ```python
 # put utility_ before elliptic curves
 from frost import utility_secp256k1 as frost
-
+message = b"hello frost"
 min_signers = 7
 max_signers = 10
 
