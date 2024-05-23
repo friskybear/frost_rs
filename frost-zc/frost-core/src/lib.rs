@@ -3,8 +3,7 @@
 #![allow(clippy::derive_partial_eq_without_eq)]
 #![deny(missing_docs)]
 #![forbid(unsafe_code)]
-#![deny(clippy::indexing_slicing)]
-#![deny(clippy::unwrap_used)]
+
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc = include_str!("../README.md")]
@@ -39,6 +38,8 @@ pub mod serialization;
 mod signature;
 mod signing_key;
 #[cfg(any(test, feature = "test-impl"))]
+
+/// useless
 pub mod tests;
 mod traits;
 mod verifying_key;

@@ -9,7 +9,7 @@ version = "1.0.0"
 authors = [
         "Deirdre Connolly <durumcrustulum@gmail.com>",
         "Chelsea Komlo <me@chelseakomlo.com>",
-        "Conrado Gouvea <conradoplg@gmail.com>"
+        "Conrado Gouvea <conradoplg@gmail.com>",
 ]
 readme = "README.md"
 license = "MIT OR Apache-2.0"
@@ -24,7 +24,8 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [dependencies]
 document-features = "0.2.7"
-p256 = { version = "0.13.0", features = ["hash2curve","serde"] }
+p256 = { path = "./EC-13.0/p256/", features = ["hash2curve", "serde"] }
+
 frost-core = { path = "../frost-core", version = "1.0.0" }
 frost-rerandomized = { path = "../frost-rerandomized", version = "1.0.0" }
 rand_core = "0.6"
@@ -32,8 +33,12 @@ sha2 = "0.10.2"
 
 [dev-dependencies]
 criterion = "0.5"
-frost-core = { path = "../frost-core", version = "1.0.0", features = ["test-impl"] }
-frost-rerandomized = { path = "../frost-rerandomized", version = "1.0.0", features = ["test-impl"] }
+frost-core = { path = "../frost-core", version = "1.0.0", features = [
+        "test-impl",
+] }
+frost-rerandomized = { path = "../frost-rerandomized", version = "1.0.0", features = [
+        "test-impl",
+] }
 insta = { version = "1.31.0", features = ["yaml"] }
 hex = "0.4.3"
 lazy_static = "1.4"
@@ -58,7 +63,3 @@ cheater-detection = ["frost-core/cheater-detection"]
 # Disables non-criterion benchmark which is not used; prevents errors
 # when using criterion-specific flags
 bench = false
-
-[[bench]]
-name = "bench"
-harness = false

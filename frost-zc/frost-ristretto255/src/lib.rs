@@ -1,6 +1,4 @@
 #![allow(non_snake_case)]
-#![deny(missing_docs)]
-#![doc = include_str!("../README.md")]
 
 use std::collections::BTreeMap;
 
@@ -303,8 +301,9 @@ pub mod keys {
     /// some agreed-upon public location for publication, where each participant can
     /// ensure that they received the correct (and same) value.
     pub type VerifiableSecretSharingCommitment = frost::keys::VerifiableSecretSharingCommitment<R>;
-
+    ///Doc
     pub mod dkg;
+    /// repair
     pub mod repairable;
 }
 

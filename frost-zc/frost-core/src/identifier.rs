@@ -2,7 +2,7 @@
 
 use std::{
     fmt::{self, Debug},
-    hash::{Hash, Hasher},
+    hash::{Hash, Hasher}, ops::MulAssign,
 };
 
 use crate::{Ciphersuite, Error, Field, FieldError, Group, Scalar};
@@ -149,7 +149,7 @@ where
     }
 }
 
-impl<C> std::ops::MulAssign<Identifier<C>> for Scalar<C>
+impl<C> MulAssign<Identifier<C>> for Scalar<C>
 where
     C: Ciphersuite,
 {

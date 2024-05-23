@@ -58,6 +58,4 @@ cheater-detection = ["frost-core/cheater-detection"]
 # when using criterion-specific flags
 bench = false
 
-[[bench]]
-name = "bench"
-harness = false
+

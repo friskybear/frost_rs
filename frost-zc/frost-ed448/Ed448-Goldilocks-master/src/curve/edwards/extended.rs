@@ -17,11 +17,17 @@ use subtle::{Choice, ConditionallyNegatable, ConditionallySelectable, ConstantTi
 /// XXX: Make this more descriptive
 /// Should this be renamed to EdwardsPoint so that we are consistent with Dalek crypto? Necessary as ExtendedPoint is not regular lingo?
 #[derive(Copy, Clone, Debug)]
+#[repr(C)]
 pub struct ExtendedPoint {
     pub(crate) X: FieldElement,
     pub(crate) Y: FieldElement,
     pub(crate) Z: FieldElement,
     pub(crate) T: FieldElement,
+}
+impl common_traits::ByteCode for ExtendedPoint {
+    fn get_unique_byte_array(&self) -> Vec<u8> {
+        self.compress().0.to_vec()
+    }
 }
 
 impl ConditionallySelectable for ExtendedPoint {

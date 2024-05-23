@@ -39,7 +39,7 @@ const LOW_C: MontgomeryPoint = MontgomeryPoint([
     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 ]);
 
-#[derive(Copy, Clone, Hash)]
+#[derive(Copy, Clone)]
 #[cfg_attr(feature = "zeroize", derive(Zeroize))]
 pub struct MontgomeryPoint(pub [u8; 56]);
 

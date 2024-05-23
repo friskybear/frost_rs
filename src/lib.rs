@@ -5,7 +5,7 @@ mod utility_module_secp256k1 {
     use frost_secp256k1 as frost_utility;
     use frost_utility::{
         keys::{
-            dkg::{round1::Package as Round1Package, round2::Package as Round2Package},
+            dkg::round1::Package as Round1Package,
             repairable::{repair_share_step_2, repair_share_step_3},
             KeyPackage, PublicKeyPackage, SecretShare, VerifiableSecretSharingCommitment,
         },
@@ -15,7 +15,7 @@ mod utility_module_secp256k1 {
         Ciphersuite, Field, Group, Identifier, Secp256K1Sha256, Signature,
     };
     use pyo3::prelude::*;
-    use rand::{rngs::ThreadRng, thread_rng, RngCore};
+    use rand::{rngs::ThreadRng, thread_rng};
     use serde::Deserialize;
     use std::collections::BTreeMap;
 
@@ -118,8 +118,7 @@ mod utility_module_secp256k1 {
     }
     #[pyfunction]
     pub fn get_id() -> String {
-        let mut bytes = [0u8; 64];
-        thread_rng().fill_bytes(&mut bytes);
+        let bytes = uuid::Uuid::new_v4().to_bytes_le();
         let id = Identifier::derive(&bytes).unwrap().serialize();
         BASE64_URL_SAFE.encode(id)
     }
@@ -155,6 +154,7 @@ mod utility_module_secp256k1 {
     }
     #[derive(Serialize, Deserialize, Debug)]
     struct SecretShareCustom2 {
+        secret_key: String,
         commitment: Vec<Vec<u8>>,
         secret_share: String,
         id: String,
@@ -218,11 +218,12 @@ mod utility_module_secp256k1 {
             .map(|(id, package)| {
                 (
                     BASE64_URL_SAFE.encode(id.serialize()),
-                    BASE64_URL_SAFE.encode(package.serialize().unwrap()),
+                    BASE64_URL_SAFE.encode(package),
                 )
             })
             .collect::<BTreeMap<String, String>>();
         let round2_secert_package_serialized = SecretShareCustom2 {
+            secret_key: serde_json::to_string(&round2_secret_package.secret_key).unwrap(),
             id,
             max: secret_custom.max,
             min: secret_custom.min,
@@ -251,6 +252,7 @@ mod utility_module_secp256k1 {
                 .unwrap();
 
         let secret_package_deserialized = frost_utility::keys::dkg::round2::SecretPackage {
+            secret_key: serde_json::from_str(secret_custom.secret_key.as_str()).unwrap(),
             identifier: Identifier::deserialize(
                 BASE64_URL_SAFE.decode(secret_custom.id).unwrap()[..]
                     .try_into()
@@ -293,13 +295,10 @@ mod utility_module_secp256k1 {
                         BASE64_URL_SAFE.decode(id).unwrap()[..].try_into().unwrap(),
                     )
                     .unwrap(),
-                    frost_utility::keys::dkg::round2::Package::deserialize(
-                        &BASE64_URL_SAFE.decode(package).unwrap(),
-                    )
-                    .unwrap(),
+                    BASE64_URL_SAFE.decode(package).unwrap(),
                 )
             })
-            .collect::<BTreeMap<Identifier, Round2Package>>();
+            .collect::<BTreeMap<Identifier, Vec<u8>>>();
         let (key_package, public_key) = frost_utility::keys::dkg::part3(
             &secret_package_deserialized,
             &round1_packages_deserialized,
@@ -509,7 +508,7 @@ mod utility_module_ed448 {
     use frost_ed448 as frost_utility;
     use frost_utility::{
         keys::{
-            dkg::{round1::Package as Round1Package, round2::Package as Round2Package},
+            dkg::round1::Package as Round1Package,
             repairable::{repair_share_step_2, repair_share_step_3},
             KeyPackage, PublicKeyPackage, SecretShare, VerifiableSecretSharingCommitment,
         },
@@ -519,7 +518,7 @@ mod utility_module_ed448 {
         Ciphersuite, Ed448Shake256, Field, Group, Identifier, Signature,
     };
     use pyo3::prelude::*;
-    use rand::{rngs::ThreadRng, thread_rng, RngCore};
+    use rand::{rngs::ThreadRng, thread_rng};
     use serde::Deserialize;
     use std::collections::BTreeMap;
 
@@ -622,8 +621,7 @@ mod utility_module_ed448 {
     }
     #[pyfunction]
     pub fn get_id() -> String {
-        let mut bytes = [0u8; 64];
-        thread_rng().fill_bytes(&mut bytes);
+        let bytes = uuid::Uuid::new_v4().to_bytes_le();
         let id = Identifier::derive(&bytes).unwrap().serialize();
         BASE64_URL_SAFE.encode(id)
     }
@@ -659,6 +657,7 @@ mod utility_module_ed448 {
     }
     #[derive(Serialize, Deserialize, Debug)]
     struct SecretShareCustom2 {
+        secret_key: String,
         commitment: Vec<Vec<u8>>,
         secret_share: String,
         id: String,
@@ -722,11 +721,12 @@ mod utility_module_ed448 {
             .map(|(id, package)| {
                 (
                     BASE64_URL_SAFE.encode(id.serialize()),
-                    BASE64_URL_SAFE.encode(package.serialize().unwrap()),
+                    BASE64_URL_SAFE.encode(package),
                 )
             })
             .collect::<BTreeMap<String, String>>();
         let round2_secert_package_serialized = SecretShareCustom2 {
+            secret_key: serde_json::to_string(&round2_secret_package.secret_key).unwrap(),
             id,
             max: secret_custom.max,
             min: secret_custom.min,
@@ -755,6 +755,7 @@ mod utility_module_ed448 {
                 .unwrap();
 
         let secret_package_deserialized = frost_utility::keys::dkg::round2::SecretPackage {
+            secret_key: serde_json::from_str(secret_custom.secret_key.as_str()).unwrap(),
             identifier: Identifier::deserialize(
                 BASE64_URL_SAFE.decode(secret_custom.id).unwrap()[..]
                     .try_into()
@@ -797,13 +798,10 @@ mod utility_module_ed448 {
                         BASE64_URL_SAFE.decode(id).unwrap()[..].try_into().unwrap(),
                     )
                     .unwrap(),
-                    frost_utility::keys::dkg::round2::Package::deserialize(
-                        &BASE64_URL_SAFE.decode(package).unwrap(),
-                    )
-                    .unwrap(),
+                    BASE64_URL_SAFE.decode(package).unwrap(),
                 )
             })
-            .collect::<BTreeMap<Identifier, Round2Package>>();
+            .collect::<BTreeMap<Identifier, Vec<u8>>>();
         let (key_package, public_key) = frost_utility::keys::dkg::part3(
             &secret_package_deserialized,
             &round1_packages_deserialized,
@@ -1013,7 +1011,7 @@ mod utility_module_ed25519 {
     use frost_ed25519 as frost_utility;
     use frost_utility::{
         keys::{
-            dkg::{round1::Package as Round1Package, round2::Package as Round2Package},
+            dkg::round1::Package as Round1Package,
             repairable::{repair_share_step_2, repair_share_step_3},
             KeyPackage, PublicKeyPackage, SecretShare, VerifiableSecretSharingCommitment,
         },
@@ -1023,13 +1021,13 @@ mod utility_module_ed25519 {
         Ciphersuite, Ed25519Sha512, Field, Group, Identifier, Signature,
     };
     use pyo3::prelude::*;
-    use rand::{rngs::ThreadRng, thread_rng, RngCore};
+    use rand::{rngs::ThreadRng, thread_rng};
     use serde::Deserialize;
     use std::collections::BTreeMap;
 
     pub type CrateCiphersuite = Ed25519Sha512;
     pub type Scalar = <<<Ed25519Sha512 as Ciphersuite>::Group as Group>::Field as Field>::Scalar;
-
+    
     #[pyfunction]
     pub fn get_key(min: u16, max: u16) -> BTreeMap<String, String> {
         let rng = thread_rng();
@@ -1126,8 +1124,7 @@ mod utility_module_ed25519 {
     }
     #[pyfunction]
     pub fn get_id() -> String {
-        let mut bytes = [0u8; 64];
-        thread_rng().fill_bytes(&mut bytes);
+        let bytes = uuid::Uuid::new_v4().to_bytes_le();
         let id = Identifier::derive(&bytes).unwrap().serialize();
         BASE64_URL_SAFE.encode(id)
     }
@@ -1163,6 +1160,7 @@ mod utility_module_ed25519 {
     }
     #[derive(Serialize, Deserialize, Debug)]
     struct SecretShareCustom2 {
+        secret_key: String,
         commitment: Vec<Vec<u8>>,
         secret_share: String,
         id: String,
@@ -1226,11 +1224,12 @@ mod utility_module_ed25519 {
             .map(|(id, package)| {
                 (
                     BASE64_URL_SAFE.encode(id.serialize()),
-                    BASE64_URL_SAFE.encode(package.serialize().unwrap()),
+                    BASE64_URL_SAFE.encode(package),
                 )
             })
             .collect::<BTreeMap<String, String>>();
         let round2_secert_package_serialized = SecretShareCustom2 {
+            secret_key: serde_json::to_string(&round2_secret_package.secret_key).unwrap(),
             id,
             max: secret_custom.max,
             min: secret_custom.min,
@@ -1259,6 +1258,7 @@ mod utility_module_ed25519 {
                 .unwrap();
 
         let secret_package_deserialized = frost_utility::keys::dkg::round2::SecretPackage {
+            secret_key: serde_json::from_str(secret_custom.secret_key.as_str()).unwrap(),
             identifier: Identifier::deserialize(
                 BASE64_URL_SAFE.decode(secret_custom.id).unwrap()[..]
                     .try_into()
@@ -1301,13 +1301,10 @@ mod utility_module_ed25519 {
                         BASE64_URL_SAFE.decode(id).unwrap()[..].try_into().unwrap(),
                     )
                     .unwrap(),
-                    frost_utility::keys::dkg::round2::Package::deserialize(
-                        &BASE64_URL_SAFE.decode(package).unwrap(),
-                    )
-                    .unwrap(),
+                    BASE64_URL_SAFE.decode(package).unwrap(),
                 )
             })
-            .collect::<BTreeMap<Identifier, Round2Package>>();
+            .collect::<BTreeMap<Identifier, Vec<u8>>>();
         let (key_package, public_key) = frost_utility::keys::dkg::part3(
             &secret_package_deserialized,
             &round1_packages_deserialized,
@@ -1517,7 +1514,7 @@ mod utility_module_p256 {
     use frost_p256 as frost_utility;
     use frost_utility::{
         keys::{
-            dkg::{round1::Package as Round1Package, round2::Package as Round2Package},
+            dkg::round1::Package as Round1Package,
             repairable::{repair_share_step_2, repair_share_step_3},
             KeyPackage, PublicKeyPackage, SecretShare, VerifiableSecretSharingCommitment,
         },
@@ -1527,7 +1524,7 @@ mod utility_module_p256 {
         Ciphersuite, Field, Group, Identifier, P256Sha256, Signature,
     };
     use pyo3::prelude::*;
-    use rand::{rngs::ThreadRng, thread_rng, RngCore};
+    use rand::{rngs::ThreadRng, thread_rng};
     use serde::Deserialize;
     use std::collections::BTreeMap;
 
@@ -1630,8 +1627,7 @@ mod utility_module_p256 {
     }
     #[pyfunction]
     pub fn get_id() -> String {
-        let mut bytes = [0u8; 64];
-        thread_rng().fill_bytes(&mut bytes);
+        let bytes = uuid::Uuid::new_v4().to_bytes_le();
         let id = Identifier::derive(&bytes).unwrap().serialize();
         BASE64_URL_SAFE.encode(id)
     }
@@ -1667,6 +1663,7 @@ mod utility_module_p256 {
     }
     #[derive(Serialize, Deserialize, Debug)]
     struct SecretShareCustom2 {
+        secret_key: String,
         commitment: Vec<Vec<u8>>,
         secret_share: String,
         id: String,
@@ -1730,11 +1727,12 @@ mod utility_module_p256 {
             .map(|(id, package)| {
                 (
                     BASE64_URL_SAFE.encode(id.serialize()),
-                    BASE64_URL_SAFE.encode(package.serialize().unwrap()),
+                    BASE64_URL_SAFE.encode(package),
                 )
             })
             .collect::<BTreeMap<String, String>>();
         let round2_secert_package_serialized = SecretShareCustom2 {
+            secret_key: serde_json::to_string(&round2_secret_package.secret_key).unwrap(),
             id,
             max: secret_custom.max,
             min: secret_custom.min,
@@ -1763,6 +1761,7 @@ mod utility_module_p256 {
                 .unwrap();
 
         let secret_package_deserialized = frost_utility::keys::dkg::round2::SecretPackage {
+            secret_key: serde_json::from_str(secret_custom.secret_key.as_str()).unwrap(),
             identifier: Identifier::deserialize(
                 BASE64_URL_SAFE.decode(secret_custom.id).unwrap()[..]
                     .try_into()
@@ -1805,13 +1804,10 @@ mod utility_module_p256 {
                         BASE64_URL_SAFE.decode(id).unwrap()[..].try_into().unwrap(),
                     )
                     .unwrap(),
-                    frost_utility::keys::dkg::round2::Package::deserialize(
-                        &BASE64_URL_SAFE.decode(package).unwrap(),
-                    )
-                    .unwrap(),
+                    BASE64_URL_SAFE.decode(package).unwrap(),
                 )
             })
-            .collect::<BTreeMap<Identifier, Round2Package>>();
+            .collect::<BTreeMap<Identifier, Vec<u8>>>();
         let (key_package, public_key) = frost_utility::keys::dkg::part3(
             &secret_package_deserialized,
             &round1_packages_deserialized,
@@ -2021,7 +2017,7 @@ mod utility_module_ristretto255 {
     use frost_ristretto255 as frost_utility;
     use frost_utility::{
         keys::{
-            dkg::{round1::Package as Round1Package, round2::Package as Round2Package},
+            dkg::round1::Package as Round1Package,
             repairable::{repair_share_step_2, repair_share_step_3},
             KeyPackage, PublicKeyPackage, SecretShare, VerifiableSecretSharingCommitment,
         },
@@ -2031,7 +2027,7 @@ mod utility_module_ristretto255 {
         Ciphersuite, Field, Group, Identifier, Ristretto255Sha512, Signature,
     };
     use pyo3::prelude::*;
-    use rand::{rngs::ThreadRng, thread_rng, RngCore};
+    use rand::{rngs::ThreadRng, thread_rng};
     use serde::Deserialize;
     use std::collections::BTreeMap;
 
@@ -2135,8 +2131,7 @@ mod utility_module_ristretto255 {
     }
     #[pyfunction]
     pub fn get_id() -> String {
-        let mut bytes = [0u8; 64];
-        thread_rng().fill_bytes(&mut bytes);
+        let bytes = uuid::Uuid::new_v4().to_bytes_le();
         let id = Identifier::derive(&bytes).unwrap().serialize();
         BASE64_URL_SAFE.encode(id)
     }
@@ -2172,6 +2167,7 @@ mod utility_module_ristretto255 {
     }
     #[derive(Serialize, Deserialize, Debug)]
     struct SecretShareCustom2 {
+        secret_key: String,
         commitment: Vec<Vec<u8>>,
         secret_share: String,
         id: String,
@@ -2235,11 +2231,12 @@ mod utility_module_ristretto255 {
             .map(|(id, package)| {
                 (
                     BASE64_URL_SAFE.encode(id.serialize()),
-                    BASE64_URL_SAFE.encode(package.serialize().unwrap()),
+                    BASE64_URL_SAFE.encode(package),
                 )
             })
             .collect::<BTreeMap<String, String>>();
         let round2_secert_package_serialized = SecretShareCustom2 {
+            secret_key: serde_json::to_string(&round2_secret_package.secret_key).unwrap(),
             id,
             max: secret_custom.max,
             min: secret_custom.min,
@@ -2268,6 +2265,7 @@ mod utility_module_ristretto255 {
                 .unwrap();
 
         let secret_package_deserialized = frost_utility::keys::dkg::round2::SecretPackage {
+            secret_key: serde_json::from_str(secret_custom.secret_key.as_str()).unwrap(),
             identifier: Identifier::deserialize(
                 BASE64_URL_SAFE.decode(secret_custom.id).unwrap()[..]
                     .try_into()
@@ -2310,13 +2308,10 @@ mod utility_module_ristretto255 {
                         BASE64_URL_SAFE.decode(id).unwrap()[..].try_into().unwrap(),
                     )
                     .unwrap(),
-                    frost_utility::keys::dkg::round2::Package::deserialize(
-                        &BASE64_URL_SAFE.decode(package).unwrap(),
-                    )
-                    .unwrap(),
+                    BASE64_URL_SAFE.decode(package).unwrap(),
                 )
             })
-            .collect::<BTreeMap<Identifier, Round2Package>>();
+            .collect::<BTreeMap<Identifier, Vec<u8>>>();
         let (key_package, public_key) = frost_utility::keys::dkg::part3(
             &secret_package_deserialized,
             &round1_packages_deserialized,
