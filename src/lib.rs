@@ -117,10 +117,20 @@ mod utility_module_secp256k1 {
         max: u16,
     }
     #[pyfunction]
-    pub fn get_id() -> String {
-        let bytes = uuid::Uuid::new_v4().to_bytes_le();
-        let id = Identifier::derive(&bytes).unwrap().serialize();
-        BASE64_URL_SAFE.encode(id)
+    pub fn get_id(_str: Option<String>) -> String {
+        match _str {
+            Some(n) => {
+                BASE64_URL_SAFE
+                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+            }
+            None => {
+                BASE64_URL_SAFE.encode(
+                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                        .unwrap()
+                        .serialize(),
+                )
+            }
+        }
     }
     #[pyfunction]
     pub fn round1(id: String, min: u16, max: u16) -> (String, String) {
@@ -620,10 +630,20 @@ mod utility_module_ed448 {
         max: u16,
     }
     #[pyfunction]
-    pub fn get_id() -> String {
-        let bytes = uuid::Uuid::new_v4().to_bytes_le();
-        let id = Identifier::derive(&bytes).unwrap().serialize();
-        BASE64_URL_SAFE.encode(id)
+    pub fn get_id(_str: Option<String>) -> String {
+        match _str {
+            Some(n) => {
+                BASE64_URL_SAFE
+                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+            }
+            None => {
+                BASE64_URL_SAFE.encode(
+                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                        .unwrap()
+                        .serialize(),
+                )
+            }
+        }
     }
     #[pyfunction]
     pub fn round1(id: String, min: u16, max: u16) -> (String, String) {
@@ -1123,10 +1143,20 @@ mod utility_module_ed25519 {
         max: u16,
     }
     #[pyfunction]
-    pub fn get_id() -> String {
-        let bytes = uuid::Uuid::new_v4().to_bytes_le();
-        let id = Identifier::derive(&bytes).unwrap().serialize();
-        BASE64_URL_SAFE.encode(id)
+    pub fn get_id(_str: Option<String>) -> String {
+        match _str {
+            Some(n) => {
+                BASE64_URL_SAFE
+                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+            }
+            None => {
+                BASE64_URL_SAFE.encode(
+                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                        .unwrap()
+                        .serialize(),
+                )
+            }
+        }
     }
     #[pyfunction]
     pub fn round1(id: String, min: u16, max: u16) -> (String, String) {
@@ -1626,10 +1656,20 @@ mod utility_module_p256 {
         max: u16,
     }
     #[pyfunction]
-    pub fn get_id() -> String {
-        let bytes = uuid::Uuid::new_v4().to_bytes_le();
-        let id = Identifier::derive(&bytes).unwrap().serialize();
-        BASE64_URL_SAFE.encode(id)
+    pub fn get_id(_str: Option<String>) -> String {
+        match _str {
+            Some(n) => {
+                BASE64_URL_SAFE
+                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+            }
+            None => {
+                BASE64_URL_SAFE.encode(
+                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                        .unwrap()
+                        .serialize(),
+                )
+            }
+        }
     }
     #[pyfunction]
     pub fn round1(id: String, min: u16, max: u16) -> (String, String) {
@@ -2130,10 +2170,20 @@ mod utility_module_ristretto255 {
         max: u16,
     }
     #[pyfunction]
-    pub fn get_id() -> String {
-        let bytes = uuid::Uuid::new_v4().to_bytes_le();
-        let id = Identifier::derive(&bytes).unwrap().serialize();
-        BASE64_URL_SAFE.encode(id)
+    pub fn get_id(_str: Option<String>) -> String {
+        match _str {
+            Some(n) => {
+                BASE64_URL_SAFE
+                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+            }
+            None => {
+                BASE64_URL_SAFE.encode(
+                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                        .unwrap()
+                        .serialize(),
+                )
+            }
+        }
     }
     #[pyfunction]
     pub fn round1(id: String, min: u16, max: u16) -> (String, String) {

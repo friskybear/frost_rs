@@ -50,7 +50,7 @@ from frost import utility_secp256k1 as frost
 min_signers = 7
 max_signers = 10
 message = "hello Frost_rs"
-# get an identifier (chance of collision is 1/2^64)
+# get an identifier (chance of collision is low) you can provide a string to get_id to get the same id each time  
 identifiers: str = [frost.get_id() for _ in range(max_signers)]
 
 # run the three round protocol to get the key
