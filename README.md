@@ -36,7 +36,8 @@ This library supports the following elliptic curves:
 - p256
 - ristretto255
 
-**All outputs are base64url encoded strings and not encrypted!!**
+**All of the outputs are base64url encoded strings and not encrypted!!**
+**Note: In version 0.1.3 and above, the output of Dkg:round 2 will be automatically encrypted. Therefore, any output that is not marked as a secret can be broadcasted.**
 
 ## guide
 
@@ -44,12 +45,12 @@ here is a example of how to use the library to make a signature and verify it
 
 ```python
 # put utility_ before elliptic curves
-from frost import utility_secp256k1 as frost
-message = b"hello frost"
+from frost_rs import utility_secp256k1 as frost
+
 min_signers = 7
 max_signers = 10
-
-# get an identifier (chance of collision is 1/2^64)
+message = "hello Frost_rs"
+# get an identifier (chance of collision is low) you can provide a string to get_id to get the same id each time
 identifiers: str = [frost.get_id() for _ in range(max_signers)]
 
 # run the three round protocol to get the key
@@ -114,28 +115,28 @@ The following benchmarks show the performance of the library for different value
 
 | Library                | DKG (sec) | Nonce Gen (sec/node) | Sign (sec) |
 | ---------------------- | --------- | -------------------- | ---------- |
-| `utility_secp256k1`    | 0.098374  | 0.001000             | 0.006513   |
-| `utility_ed448`        | 0.978722  | 0.012515             | 0.087149   |
-| `utility_ed25519`      | 0.105699  | 0.001000             | 0.011518   |
-| `utility_p256`         | 0.247465  | 0.002572             | 0.011449   |
-| `utility_ristretto255` | 0.061611  | 0.001000             | 0.006510   |
+| `utility_secp256k1`    | 0.110016  | 0.000100             | 0.005999   |
+| `utility_ed448`        | 0.996042  | 0.001301             | 0.086805   |
+| `utility_ed25519`      | 0.109749  | 0.000200             | 0.010864   |
+| `utility_p256`         | 0.247094  | 0.000288             | 0.010576   |
+| `utility_ristretto255` | 0.066160  | 0.000100             | 0.005664   |
 
 ### T=15, N=20
 
 | Library                | DKG (sec) | Nonce Gen (sec/node) | Sign (sec) |
 | ---------------------- | --------- | -------------------- | ---------- |
-| `utility_secp256k1`    | 0.761673  | 0.002511             | 0.020761   |
-| `utility_ed448`        | 7.640174  | 0.028124             | 0.316123   |
-| `utility_ed25519`      | 0.828624  | 0.002000             | 0.038753   |
-| `utility_p256`         | 1.769641  | 0.006398             | 0.039469   |
-| `utility_ristretto255` | 0.489567  | 0.001509             | 0.017441   |
+| `utility_secp256k1`    | 0.819098  | 0.000150             | 0.021002   |
+| `utility_ed448`        | 7.780945  | 0.001188             | 0.316400   |
+| `utility_ed25519`      | 0.828922  | 0.000150             | 0.042004   |
+| `utility_p256`         | 1.825327  | 0.000297             | 0.039655   |
+| `utility_ristretto255` | 0.491067  | 0.000100             | 0.016765   |
 
 ### T=25, N=30
 
 | Library                | DKG (sec) | Nonce Gen (sec/node) | Sign (sec) |
 | ---------------------- | --------- | -------------------- | ---------- |
-| `utility_secp256k1`    | 2.598118  | 0.004004             | 0.044556   |
-| `utility_ed448`        | 27.671697 | 0.036910             | 0.691816   |
-| `utility_ed25519`      | 2.879805  | 0.004503             | 0.083431   |
-| `utility_p256`         | 6.378291  | 0.009511             | 0.085119   |
-| `utility_ristretto255` | 1.672220  | 0.003009             | 0.037045   |
+| `utility_secp256k1`    | 2.931058  | 0.000162             | 0.046715   |
+| `utility_ed448`        | 27.882355 | 0.001225             | 0.679499   |
+| `utility_ed25519`      | 3.050586  | 0.000133             | 0.083511   |
+| `utility_p256`         | 6.487219  | 0.000317             | 0.083003   |
+| `utility_ristretto255` | 1.803785  | 0.000100             | 0.037506   |

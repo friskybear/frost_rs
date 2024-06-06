@@ -9,6 +9,13 @@ use rand_core::{CryptoRng, RngCore};
 
 use crate::{Error, FieldError, GroupError, Signature, VerifyingKey};
 
+
+
+/// trait to get a unique byte array for (ECDH)
+pub trait ByteCode {
+    /// convert Element into Byte Array
+    fn get_unique_byte_array(&self) -> Vec<u8>;
+}
 /// A prime order finite field GF(q) over which all scalar values for our prime order group can be
 /// multiplied are defined.
 ///
@@ -16,7 +23,6 @@ use crate::{Error, FieldError, GroupError, Signature, VerifyingKey};
 /// pass-through, implemented for a type just for the ciphersuite, and calls through to another
 /// implementation underneath, so that this trait does not have to be implemented for types you
 /// don't own
-
 
 pub trait Field: Copy + Clone {
     /// An element of the scalar field GF(p).
@@ -27,7 +33,8 @@ pub trait Field: Copy + Clone {
         + Eq
         + Mul<Output = Self::Scalar>
         + PartialEq
-        + Sub<Output = Self::Scalar>;
+        + Sub<Output = Self::Scalar>
+        + Debug;
 
     /// A unique byte array buf of fixed length N.
     type Serialization: AsRef<[u8]> + Debug + TryFrom<Vec<u8>>;
@@ -90,7 +97,9 @@ pub trait Group: Copy + Clone + PartialEq {
         + Eq
         + Mul<<Self::Field as Field>::Scalar, Output = Self::Element>
         + PartialEq
-        + Sub<Output = Self::Element>;
+        + Sub<Output = Self::Element>
+        + Debug
+        + common_traits::ByteCode;
 
     /// A unique byte array buf of fixed length N.
     ///

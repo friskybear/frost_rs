@@ -19,7 +19,7 @@ subtle = "2.2.2"
 rand_core = { version = "0.6", optional = true }
 fiat-crypto = { version = "0.2.0", optional = true }
 serde = "1.0.199"
-
+common_traits ={ path="../../../common_traits" }
 [dependencies.zeroize]
 version = "1"
 default-features = false

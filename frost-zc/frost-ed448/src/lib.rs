@@ -2,7 +2,6 @@
 #![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![doc = include_str!("../README.md")]
 #![doc = document_features::document_features!()]
 
 use std::collections::BTreeMap;
@@ -19,7 +18,6 @@ use sha3::{
 };
 
 use frost_core as frost;
-
 #[cfg(test)]
 mod tests;
 
@@ -29,6 +27,8 @@ pub use rand_core;
 
 /// An error.
 pub type Error = frost_core::Error<Ed448Shake256>;
+
+
 
 /// An implementation of the FROST(Ed448, SHAKE256) ciphersuite scalar field.
 #[derive(Clone, Copy)]
@@ -74,6 +74,10 @@ impl Field for Ed448ScalarField {
         Self::serialize(scalar)
     }
 }
+
+
+
+
 
 /// An implementation of the FROST(Ed448, SHAKE256) ciphersuite group.
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -312,7 +316,7 @@ pub mod keys {
     /// some agreed-upon public location for publication, where each participant can
     /// ensure that they received the correct (and same) value.
     pub type VerifiableSecretSharingCommitment = frost::keys::VerifiableSecretSharingCommitment<E>;
-
+    /// DOC
     pub mod dkg;
     pub mod repairable;
 }

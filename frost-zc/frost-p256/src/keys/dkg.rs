@@ -65,7 +65,7 @@ pub fn part1<R: RngCore + CryptoRng>(
 pub fn part2(
     secret_package: round1::SecretPackage,
     round1_packages: &BTreeMap<Identifier, round1::Package>,
-) -> Result<(round2::SecretPackage, BTreeMap<Identifier, round2::Package>), Error> {
+) -> Result<(round2::SecretPackage, BTreeMap<Identifier, Vec<u8>>), Error> {
     frost::keys::dkg::part2(secret_package, round1_packages)
 }
 
@@ -81,7 +81,7 @@ pub fn part2(
 pub fn part3(
     round2_secret_package: &round2::SecretPackage,
     round1_packages: &BTreeMap<Identifier, round1::Package>,
-    round2_packages: &BTreeMap<Identifier, round2::Package>,
+    round2_packages: &BTreeMap<Identifier, Vec<u8>>,
 ) -> Result<(KeyPackage, PublicKeyPackage), Error> {
     frost::keys::dkg::part3(round2_secret_package, round1_packages, round2_packages)
 }

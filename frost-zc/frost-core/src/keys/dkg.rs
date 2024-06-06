@@ -30,13 +30,17 @@
 //! [Feldman's VSS]: https://www.cs.umd.edu/~gasarch/TOPICS/secretsharing/feldmanVSS.pdf
 //! [secure broadcast channel]: https://frost.zfnd.org/terminology.html#broadcast-channel
 
-use std::{collections::BTreeMap, iter};
+use std::{collections::BTreeMap, io::Read, iter};
 
+use base64::Engine;
+use common_traits::ByteCode;
+use rand::Rng;
 use rand_core::{CryptoRng, RngCore};
+use ring::aead::BoundKey;
 
 use crate::{
-    Challenge, Ciphersuite, Element, Error, Field, Group, Header, Identifier, Scalar, Signature,
-    SigningKey, VerifyingKey,
+    keys::dkg, scalar_mul::NonAdjacentForm, Challenge, Ciphersuite, Element, Error, Field, Group,
+    Header, Identifier, Scalar, Signature, SigningKey, VerifyingKey,
 };
 
 use super::{
@@ -110,7 +114,7 @@ pub mod round1 {
     ///
     /// This package MUST NOT be sent to other participants!
     #[derive(Clone, PartialEq, Eq)]
-    
+
     pub struct SecretPackage<C: Ciphersuite> {
         /// The identifier of the participant holding the secret.
         pub identifier: Identifier<C>,
@@ -135,10 +139,9 @@ pub mod round1 {
             &self.coefficients
         }
         ///get commitment
-        pub fn commitment(&self)-> &VerifiableSecretSharingCommitment<C>{
+        pub fn commitment(&self) -> &VerifiableSecretSharingCommitment<C> {
             &self.commitment
         }
-       
     }
 
     impl<C> std::fmt::Debug for SecretPackage<C>
@@ -176,7 +179,6 @@ pub mod round2 {
     use crate::serialization::{Deserialize, Serialize};
 
     use super::*;
-
     /// A package that must be sent by each participant to some other participants
     /// in Round 2 of the DKG protocol. Note that there is one specific package
     /// for each specific recipient, in contrast to Round 1.
@@ -233,6 +235,8 @@ pub mod round2 {
     /// This package MUST NOT be sent to other participants!
     #[derive(Clone, PartialEq, Eq)]
     pub struct SecretPackage<C: Ciphersuite> {
+        /// secret to help decrypt dkg::round2 message
+        pub secret_key: Scalar<C>,
         /// The identifier of the participant holding the secret.
         pub identifier: Identifier<C>,
         /// The public commitment from the participant (C_i)
@@ -244,7 +248,7 @@ pub mod round2 {
         /// The total number of signers.
         pub max_signers: u16,
     }
-    
+
     impl<C> std::fmt::Debug for SecretPackage<C>
     where
         C: Ciphersuite,
@@ -401,13 +405,7 @@ pub(crate) fn verify_proof_of_knowledge<C: Ciphersuite>(
 pub fn part2<C: Ciphersuite>(
     secret_package: round1::SecretPackage<C>,
     round1_packages: &BTreeMap<Identifier<C>, round1::Package<C>>,
-) -> Result<
-    (
-        round2::SecretPackage<C>,
-        BTreeMap<Identifier<C>, round2::Package<C>>,
-    ),
-    Error<C>,
-> {
+) -> Result<(round2::SecretPackage<C>, BTreeMap<Identifier<C>, Vec<u8>>), Error<C>> {
     if round1_packages.len() != (secret_package.max_signers - 1) as usize {
         return Err(Error::IncorrectNumberOfPackages);
     }
@@ -434,19 +432,40 @@ pub fn part2<C: Ciphersuite>(
         // > Each P_i securely sends to each other participant P_ℓ a secret share (ℓ, f_i(ℓ)),
         // > deleting f_i and each share afterward except for (i, f_i(i)),
         // > which they keep for themselves.
+
         let signing_share = SigningShare::from_coefficients(&secret_package.coefficients, ell);
 
-        round2_packages.insert(
-            ell,
-            round2::Package {
-                header: Header::default(),
-                signing_share,
-            },
-        );
+        let shared_key = round1_package
+            .commitment()
+            .verifying_key()
+            .unwrap()
+            .to_element()
+            * secret_package.coefficients[0];
+        let salt = ring::hkdf::Salt::new(ring::hkdf::HKDF_SHA256, b"FROST_RS");
+        let prk = salt.extract(&shared_key.get_unique_byte_array());
+        let mut key = [0u8; 32];
+        prk.expand(&[], ring::hkdf::HKDF_SHA256)
+            .unwrap()
+            .fill(&mut key)
+            .unwrap();
+
+        let unbound_key = ring::aead::UnboundKey::new(&ring::aead::AES_256_GCM, &key).unwrap();
+        let key = ring::aead::LessSafeKey::new(unbound_key);
+        // Generate a fixed nonce
+        let nonce = ring::aead::Nonce::assume_unique_for_key([22u8; 12]);
+
+        let mut signing_share_hash: Vec<u8> = serde_json::to_vec(&signing_share).unwrap();
+
+        // Encrypt the data in place, the signing_share_hash variable will now contain the ciphertext
+        key.seal_in_place_append_tag(nonce, ring::aead::Aad::empty(), &mut signing_share_hash)
+            .unwrap();
+
+        round2_packages.insert(ell, signing_share_hash);
     }
     let fii = evaluate_polynomial(secret_package.identifier, &secret_package.coefficients);
     Ok((
         round2::SecretPackage {
+            secret_key: secret_package.coefficients[0],
             identifier: secret_package.identifier,
             commitment: secret_package.commitment,
             secret_share: fii,
@@ -477,7 +496,7 @@ pub fn part2<C: Ciphersuite>(
 pub fn part3<C: Ciphersuite>(
     round2_secret_package: &round2::SecretPackage<C>,
     round1_packages: &BTreeMap<Identifier<C>, round1::Package<C>>,
-    round2_packages: &BTreeMap<Identifier<C>, round2::Package<C>>,
+    round2_packages: &BTreeMap<Identifier<C>, Vec<u8>>,
 ) -> Result<(KeyPackage<C>, PublicKeyPackage<C>), Error<C>> {
     if round1_packages.len() != (round2_secret_package.max_signers - 1) as usize {
         return Err(Error::IncorrectNumberOfPackages);
@@ -495,6 +514,34 @@ pub fn part3<C: Ciphersuite>(
     let mut signing_share = <<C::Group as Group>::Field>::zero();
 
     for (sender_identifier, round2_package) in round2_packages {
+        let sender_public_key = round1_packages
+            .get(sender_identifier)
+            .unwrap()
+            .commitment()
+            .verifying_key()
+            .unwrap()
+            .to_element();
+        let shared_key = sender_public_key * round2_secret_package.secret_key;
+        let salt = ring::hkdf::Salt::new(ring::hkdf::HKDF_SHA256, b"FROST_RS");
+        let prk = salt.extract(&shared_key.get_unique_byte_array());
+        let mut key = [0u8; 32];
+        prk.expand(&[], ring::hkdf::HKDF_SHA256)
+            .unwrap()
+            .fill(&mut key)
+            .unwrap();
+
+        let unbound_key = ring::aead::UnboundKey::new(&ring::aead::AES_256_GCM, &key).unwrap();
+        let key = ring::aead::LessSafeKey::new(unbound_key);
+        // Generate a fixed nonce
+        let nonce = ring::aead::Nonce::assume_unique_for_key([22u8; 12]);
+
+        let mut point = round2_package.clone();
+        let decrypted_round2_package = key
+            .open_in_place(nonce, ring::aead::Aad::empty(), &mut point)
+            .unwrap();
+
+        let round2_package =
+            round2::Package::new(serde_json::from_slice(decrypted_round2_package).unwrap());
         // Round 2, Step 2
         //
         // > Each P_i verifies their shares by calculating:

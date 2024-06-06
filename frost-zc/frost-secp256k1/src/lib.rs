@@ -1,8 +1,6 @@
 #![allow(non_snake_case)]
-#![deny(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![doc = include_str!("../README.md")]
 #![doc = document_features::document_features!()]
 
 use std::collections::BTreeMap;
@@ -345,6 +343,7 @@ pub mod keys {
     pub type VerifiableSecretSharingCommitment = frost::keys::VerifiableSecretSharingCommitment<S>;
 
     pub mod dkg;
+    /// repair
     pub mod repairable;
 }
 

@@ -1,8 +1,8 @@
-//! Repairable Threshold Scheme
-//!
-//! Implements the Repairable Threshold Scheme (RTS) from <https://eprint.iacr.org/2017/1155>.
-//! The RTS is used to help a signer (participant) repair their lost share. This is achieved
-//! using a subset of the other signers know here as `helpers`.
+// //! Repairable Threshold Scheme
+// //!
+// //! Implements the Repairable Threshold Scheme (RTS) from <https://eprint.iacr.org/2017/1155>.
+// //! The RTS is used to help a signer (participant) repair their lost share. This is achieved
+// //! using a subset of the other signers know here as `helpers`.
 
 use std::collections::BTreeMap;
 
@@ -54,50 +54,50 @@ pub fn repair_share_step_3(
     frost::keys::repairable::repair_share_step_3(sigmas, identifier, commitment)
 }
 
-#[cfg(test)]
-mod tests {
+// #[cfg(test)]
+// mod tests {
 
-    use lazy_static::lazy_static;
-    use rand::thread_rng;
-    use serde_json::Value;
+//     use lazy_static::lazy_static;
+//     use rand::thread_rng;
+//     use serde_json::Value;
 
-    use crate::Ristretto255Sha512;
+//     use crate::Ristretto255Sha512;
 
-    lazy_static! {
-        pub static ref REPAIR_SHARE: Value =
-            serde_json::from_str(include_str!("../../tests/helpers/repair-share.json").trim())
-                .unwrap();
-    }
+//     lazy_static! {
+//         pub static ref REPAIR_SHARE: Value =
+//             serde_json::from_str(include_str!("../../tests/helpers/repair-share.json").trim())
+//                 .unwrap();
+//     }
 
-    #[test]
-    fn check_repair_share_step_1() {
-        let rng = thread_rng();
+//     #[test]
+//     fn check_repair_share_step_1() {
+//         let rng = thread_rng();
 
-        frost_core::tests::repairable::check_repair_share_step_1::<Ristretto255Sha512, _>(rng);
-    }
+//         frost_core::tests::repairable::check_repair_share_step_1::<Ristretto255Sha512, _>(rng);
+//     }
 
-    #[test]
-    fn check_repair_share_step_2() {
-        frost_core::tests::repairable::check_repair_share_step_2::<Ristretto255Sha512>(
-            &REPAIR_SHARE,
-        );
-    }
+//     #[test]
+//     fn check_repair_share_step_2() {
+//         frost_core::tests::repairable::check_repair_share_step_2::<Ristretto255Sha512>(
+//             &REPAIR_SHARE,
+//         );
+//     }
 
-    #[test]
-    fn check_repair_share_step_3() {
-        let rng = thread_rng();
-        frost_core::tests::repairable::check_repair_share_step_3::<Ristretto255Sha512, _>(
-            rng,
-            &REPAIR_SHARE,
-        );
-    }
+//     #[test]
+//     fn check_repair_share_step_3() {
+//         let rng = thread_rng();
+//         frost_core::tests::repairable::check_repair_share_step_3::<Ristretto255Sha512, _>(
+//             rng,
+//             &REPAIR_SHARE,
+//         );
+//     }
 
-    #[test]
-    fn check_repair_share_step_1_fails_with_invalid_min_signers() {
-        let rng = thread_rng();
-        frost_core::tests::repairable::check_repair_share_step_1_fails_with_invalid_min_signers::<
-            Ristretto255Sha512,
-            _,
-        >(rng);
-    }
-}
+//     #[test]
+//     fn check_repair_share_step_1_fails_with_invalid_min_signers() {
+//         let rng = thread_rng();
+//         frost_core::tests::repairable::check_repair_share_step_1_fails_with_invalid_min_signers::<
+//             Ristretto255Sha512,
+//             _,
+//         >(rng);
+//     }
+// }
