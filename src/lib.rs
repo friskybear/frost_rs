@@ -120,16 +120,13 @@ mod utility_module_secp256k1 {
     pub fn get_id(_str: Option<String>) -> String {
         match _str {
             Some(n) => {
-                BASE64_URL_SAFE
-                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+                BASE64_URL_SAFE.encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
             }
-            None => {
-                BASE64_URL_SAFE.encode(
-                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
-                        .unwrap()
-                        .serialize(),
-                )
-            }
+            None => BASE64_URL_SAFE.encode(
+                Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                    .unwrap()
+                    .serialize(),
+            ),
         }
     }
     #[pyfunction]
@@ -391,6 +388,7 @@ mod utility_module_secp256k1 {
                 )
             })
             .collect::<BTreeMap<Identifier, SigningCommitments>>();
+
         let signing_package =
             frost_utility::SigningPackage::new(nonce_commitment_deserialized, &message);
         let signature_shares_deserialized = signature_shares
@@ -408,8 +406,12 @@ mod utility_module_secp256k1 {
                 )
             })
             .collect::<BTreeMap<Identifier, SignatureShare>>();
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         BASE64_URL_SAFE.encode(
             frost_utility::aggregate(
                 &signing_package,
@@ -423,8 +425,12 @@ mod utility_module_secp256k1 {
 
     #[pyfunction]
     pub fn verify(message: Vec<u8>, public_key: String, signature: String) -> bool {
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         let signature_deserialized = Signature::deserialize(
             BASE64_URL_SAFE.decode(signature).unwrap()[..]
                 .try_into()
@@ -633,16 +639,13 @@ mod utility_module_ed448 {
     pub fn get_id(_str: Option<String>) -> String {
         match _str {
             Some(n) => {
-                BASE64_URL_SAFE
-                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+                BASE64_URL_SAFE.encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
             }
-            None => {
-                BASE64_URL_SAFE.encode(
-                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
-                        .unwrap()
-                        .serialize(),
-                )
-            }
+            None => BASE64_URL_SAFE.encode(
+                Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                    .unwrap()
+                    .serialize(),
+            ),
         }
     }
     #[pyfunction]
@@ -921,8 +924,12 @@ mod utility_module_ed448 {
                 )
             })
             .collect::<BTreeMap<Identifier, SignatureShare>>();
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         BASE64_URL_SAFE.encode(
             frost_utility::aggregate(
                 &signing_package,
@@ -936,8 +943,12 @@ mod utility_module_ed448 {
 
     #[pyfunction]
     pub fn verify(message: Vec<u8>, public_key: String, signature: String) -> bool {
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         let signature_deserialized = Signature::deserialize(
             BASE64_URL_SAFE.decode(signature).unwrap()[..]
                 .try_into()
@@ -1047,7 +1058,7 @@ mod utility_module_ed25519 {
 
     pub type CrateCiphersuite = Ed25519Sha512;
     pub type Scalar = <<<Ed25519Sha512 as Ciphersuite>::Group as Group>::Field as Field>::Scalar;
-    
+
     #[pyfunction]
     pub fn get_key(min: u16, max: u16) -> BTreeMap<String, String> {
         let rng = thread_rng();
@@ -1146,16 +1157,13 @@ mod utility_module_ed25519 {
     pub fn get_id(_str: Option<String>) -> String {
         match _str {
             Some(n) => {
-                BASE64_URL_SAFE
-                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+                BASE64_URL_SAFE.encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
             }
-            None => {
-                BASE64_URL_SAFE.encode(
-                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
-                        .unwrap()
-                        .serialize(),
-                )
-            }
+            None => BASE64_URL_SAFE.encode(
+                Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                    .unwrap()
+                    .serialize(),
+            ),
         }
     }
     #[pyfunction]
@@ -1434,8 +1442,12 @@ mod utility_module_ed25519 {
                 )
             })
             .collect::<BTreeMap<Identifier, SignatureShare>>();
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         BASE64_URL_SAFE.encode(
             frost_utility::aggregate(
                 &signing_package,
@@ -1449,8 +1461,12 @@ mod utility_module_ed25519 {
 
     #[pyfunction]
     pub fn verify(message: Vec<u8>, public_key: String, signature: String) -> bool {
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         let signature_deserialized = Signature::deserialize(
             BASE64_URL_SAFE.decode(signature).unwrap()[..]
                 .try_into()
@@ -1659,16 +1675,13 @@ mod utility_module_p256 {
     pub fn get_id(_str: Option<String>) -> String {
         match _str {
             Some(n) => {
-                BASE64_URL_SAFE
-                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+                BASE64_URL_SAFE.encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
             }
-            None => {
-                BASE64_URL_SAFE.encode(
-                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
-                        .unwrap()
-                        .serialize(),
-                )
-            }
+            None => BASE64_URL_SAFE.encode(
+                Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                    .unwrap()
+                    .serialize(),
+            ),
         }
     }
     #[pyfunction]
@@ -1947,8 +1960,12 @@ mod utility_module_p256 {
                 )
             })
             .collect::<BTreeMap<Identifier, SignatureShare>>();
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         BASE64_URL_SAFE.encode(
             frost_utility::aggregate(
                 &signing_package,
@@ -1962,8 +1979,12 @@ mod utility_module_p256 {
 
     #[pyfunction]
     pub fn verify(message: Vec<u8>, public_key: String, signature: String) -> bool {
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         let signature_deserialized = Signature::deserialize(
             BASE64_URL_SAFE.decode(signature).unwrap()[..]
                 .try_into()
@@ -2173,16 +2194,13 @@ mod utility_module_ristretto255 {
     pub fn get_id(_str: Option<String>) -> String {
         match _str {
             Some(n) => {
-                BASE64_URL_SAFE
-                    .encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
+                BASE64_URL_SAFE.encode(Identifier::derive(n.as_bytes()).unwrap().serialize())
             }
-            None => {
-                BASE64_URL_SAFE.encode(
-                    Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
-                        .unwrap()
-                        .serialize(),
-                )
-            }
+            None => BASE64_URL_SAFE.encode(
+                Identifier::derive(&uuid::Uuid::new_v4().to_bytes_le())
+                    .unwrap()
+                    .serialize(),
+            ),
         }
     }
     #[pyfunction]
@@ -2461,8 +2479,12 @@ mod utility_module_ristretto255 {
                 )
             })
             .collect::<BTreeMap<Identifier, SignatureShare>>();
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         BASE64_URL_SAFE.encode(
             frost_utility::aggregate(
                 &signing_package,
@@ -2476,8 +2498,12 @@ mod utility_module_ristretto255 {
 
     #[pyfunction]
     pub fn verify(message: Vec<u8>, public_key: String, signature: String) -> bool {
-        let public_key_deserialized =
-            PublicKeyPackage::deserialize(&BASE64_URL_SAFE.decode(public_key).unwrap()).unwrap();
+        let public_key_deserialized = PublicKeyPackage::deserialize(
+            &BASE64_URL_SAFE
+                .decode(public_key.trim().replace("\"", ""))
+                .unwrap(),
+        )
+        .unwrap();
         let signature_deserialized = Signature::deserialize(
             BASE64_URL_SAFE.decode(signature).unwrap()[..]
                 .try_into()
@@ -2756,7 +2782,7 @@ fn utility_ristretto255(_py: Python, m: &PyModule) -> PyResult<()> {
 }
 
 #[pymodule]
-fn frost(_py: Python, m: &PyModule) -> PyResult<()> {
+fn frost_rs(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(network))?;
     m.add_wrapped(wrap_pymodule!(utility_secp256k1))?;
     m.add_wrapped(wrap_pymodule!(utility_ed448))?;

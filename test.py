@@ -13,13 +13,13 @@ libs = ['utility_secp256k1', 'utility_ed448',
 # every output in this lib is encoded in base64url and its not encrypted
 for lib in libs:
     print(f"Testing {lib}")
-    exec(f"from frost import {lib} as frost")
+    exec(f"from frost_rs import {lib} as frost")
 
     # Start measuring time
     start_time = time.time()
 
-    min_signers = 7
-    max_signers = 10
+    min_signers = 2
+    max_signers = 2
 
     # get an identifier (chance of collision is 1/2^64)
     identifiers: str = [frost.get_id() for _ in range(max_signers)]
@@ -82,7 +82,8 @@ for lib in libs:
         "nonce gen per node": nonce_time,
         "signing time": sign_time,
         "signature": group_signature,
-        "verification_result": verification_result
+        "verification_result": verification_result,
+        "len": len(pubkey_packages[identifiers[0]])
     })
 
 for result in results:
@@ -91,4 +92,6 @@ for result in results:
         f"Dkg : {result['Dkg time']} sec , \nNonce gen(per Node) : {result['nonce gen per node']} sec\nsign : {result['signing time']} sec")
     print(f"signature: {result['signature']}")
     print(f"Verification Result: {result['verification_result']}")
+    low = result['len']
+    print(f'len = {low}')
     print("\n")

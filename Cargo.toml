@@ -6,7 +6,7 @@ edition = "2021"
 readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "frost"
+name = "frost_rs"
 crate-type = ["cdylib"]
 
 
@@ -28,12 +28,6 @@ base64 = "0.22.0"
 serdect = "0.2.0"
 serde = "1.0.197"
 serde_json = "1.0.115"
-# libp2p = { path = "./rust-libp2p-master/libp2p", features = [
-#     "tokio",
-#     "quic",
-#     "tcp",
-# ] }
-# libp2p-stream = { path = "./rust-libp2p-master/protocols/stream" }
 tracing = "0.1.40"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 anyhow = "1.0.82"

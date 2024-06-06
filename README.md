@@ -36,8 +36,8 @@ This library supports the following elliptic curves:
 - p256
 - ristretto255
 
-**All outputs are base64url encoded strings and not encrypted!!**
-**Note: In version 0.1.3 and above, the output of Dkg:round 2 will be automatically encrypted. Therefore, any output that is not marked as secret can be broadcasted.**
+**All of the outputs are base64url encoded strings and not encrypted!!**
+**Note: In version 0.1.3 and above, the output of Dkg:round 2 will be automatically encrypted. Therefore, any output that is not marked as a secret can be broadcasted.**
 
 ## guide
 
@@ -45,7 +45,7 @@ here is a example of how to use the library to make a signature and verify it
 
 ```python
 # put utility_ before elliptic curves
-from frost import utility_secp256k1 as frost
+from frost_rs import utility_secp256k1 as frost
 
 min_signers = 7
 max_signers = 10
