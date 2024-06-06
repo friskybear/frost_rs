@@ -23,10 +23,8 @@ jobs:
         target:
           - x86_64
           - x86
-          - aarch64
           - armv7
-          - s390x
-          - ppc64le
+
         python_ver:
           - "3.8"
           - "3.9"
