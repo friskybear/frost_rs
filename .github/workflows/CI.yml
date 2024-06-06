@@ -113,7 +113,7 @@ jobs:
           name: wheels-macos-${{matrix.python_ver}}-${{ matrix.target }}
           path: dist
   sdist:
-    runs-on: macos-latest
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - name: List files
