@@ -1,6 +1,6 @@
 # Frost.rs Python Bindings
 
-This library is a port of [frost.rs](https://github.com/ZcashFoundation/frost.rs) written by the Zcash Foundation for Python 3.8-12. It provides bindings to the Rust library for performing various cryptographic operations, including distributed key generation (DKG), nonce generation, and signing signature blazingly fast.
+This library is a port of [frost.rs](https://github.com/ZcashFoundation/frost.rs) written by the Zcash Foundation for Python 3.8-13. It provides bindings to the Rust library for performing various cryptographic operations, including distributed key generation (DKG), nonce generation, and signing signature blazingly fast.
 
 ## Installation
 

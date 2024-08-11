@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "frost_rs"
-requires-python = ">=3.7, < 3.13"
+requires-python = ">=3.7, <= 3.13"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",

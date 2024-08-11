@@ -18,8 +18,8 @@ for lib in libs:
     # Start measuring time
     start_time = time.time()
 
-    min_signers = 2
-    max_signers = 2
+    min_signers = 25
+    max_signers = 30
 
     # get an identifier (chance of collision is 1/2^64)
     identifiers: str = [frost.get_id() for _ in range(max_signers)]

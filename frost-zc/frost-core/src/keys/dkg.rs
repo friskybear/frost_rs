@@ -34,6 +34,7 @@ use std::{collections::BTreeMap, io::Read, iter};
 
 use base64::Engine;
 use common_traits::ByteCode;
+use itertools::Itertools;
 use rand::Rng;
 use rand_core::{CryptoRng, RngCore};
 use ring::aead::BoundKey;
@@ -451,8 +452,10 @@ pub fn part2<C: Ciphersuite>(
 
         let unbound_key = ring::aead::UnboundKey::new(&ring::aead::AES_256_GCM, &key).unwrap();
         let key = ring::aead::LessSafeKey::new(unbound_key);
-        // Generate a fixed nonce
-        let nonce = ring::aead::Nonce::assume_unique_for_key([22u8; 12]);
+        // Generate a random nonce
+        let mut nonce_vec = [0u8; 12];
+        rand::thread_rng().fill(&mut nonce_vec);
+        let nonce = ring::aead::Nonce::assume_unique_for_key(nonce_vec);
 
         let mut signing_share_hash: Vec<u8> = serde_json::to_vec(&signing_share).unwrap();
 
@@ -460,7 +463,13 @@ pub fn part2<C: Ciphersuite>(
         key.seal_in_place_append_tag(nonce, ring::aead::Aad::empty(), &mut signing_share_hash)
             .unwrap();
 
-        round2_packages.insert(ell, signing_share_hash);
+        round2_packages.insert(
+            ell,
+            nonce_vec
+                .into_iter()
+                .chain(signing_share_hash.into_iter())
+                .collect::<Vec<u8>>(),
+        );
     }
     let fii = evaluate_polynomial(secret_package.identifier, &secret_package.coefficients);
     Ok((
@@ -514,6 +523,7 @@ pub fn part3<C: Ciphersuite>(
     let mut signing_share = <<C::Group as Group>::Field>::zero();
 
     for (sender_identifier, round2_package) in round2_packages {
+        let (nonce_vec, round2_package) = round2_package.split_at(12);
         let sender_public_key = round1_packages
             .get(sender_identifier)
             .unwrap()
@@ -533,9 +543,9 @@ pub fn part3<C: Ciphersuite>(
         let unbound_key = ring::aead::UnboundKey::new(&ring::aead::AES_256_GCM, &key).unwrap();
         let key = ring::aead::LessSafeKey::new(unbound_key);
         // Generate a fixed nonce
-        let nonce = ring::aead::Nonce::assume_unique_for_key([22u8; 12]);
+        let nonce = ring::aead::Nonce::assume_unique_for_key(nonce_vec.try_into().unwrap());
 
-        let mut point = round2_package.clone();
+        let mut point = round2_package.to_vec();
         let decrypted_round2_package = key
             .open_in_place(nonce, ring::aead::Aad::empty(), &mut point)
             .unwrap();
