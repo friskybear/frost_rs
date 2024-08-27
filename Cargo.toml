@@ -1,7 +1,7 @@
 workspace = { members = ["common_traits"] }
 [package]
 name = "frost-rs"
-version = "1.0.0-rc"
+version = "1.0.0"
 edition = "2021"
 readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
